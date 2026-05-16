@@ -1,0 +1,35 @@
+# ─────────────────────────────────────────────────────────────
+# Bloc à ajouter dans votre docker-compose.yml existant
+# ─────────────────────────────────────────────────────────────
+#
+# Remplacez :
+#   - MON_RESEAU_INTERNE  → réseau du conteneur Nginx (ex: cantal_default)
+#   - MON_RESEAU_DEFAULT  → réseau principal du compose  (ex: loulou_default)
+#   - /home/user          → votre répertoire home
+#
+services:
+  exec-api:
+    build: ./docker/exec-api
+    container_name: exec-api
+    restart: unless-stopped
+    ports:
+      - "5555:5555"
+    networks:
+      - MON_RESEAU_DEFAULT
+      - MON_RESEAU_INTERNE
+    volumes:
+      - /home/user:/home/user:ro
+      - /mnt:/mnt:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - EXEC_API_TOKEN=${EXEC_API_TOKEN}
+
+# ─────────────────────────────────────────────────────────────
+# À ajouter en bas du fichier si ces réseaux ne sont pas
+# encore déclarés dans votre compose
+# ─────────────────────────────────────────────────────────────
+networks:
+  MON_RESEAU_DEFAULT:
+    external: true
+  MON_RESEAU_INTERNE:
+    external: true
