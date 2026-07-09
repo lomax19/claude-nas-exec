@@ -1,0 +1,17 @@
+# Déploiement autonome permanent. Pour insérer dans un compose existant avec
+# reverse proxy conteneurisé, voir docker-compose-snippet.yml à la place.
+services:
+  exec-api:
+    build: .
+    container_name: exec-api
+    restart: unless-stopped
+    # Bind localhost : destiné à un tunnel cloudflared tournant sur l'hôte.
+    # Derrière un reverse proxy sur réseau docker, retire ce bind et partage le réseau.
+    ports:
+      - "127.0.0.1:5555:5555"
+    volumes:
+      - ${HOME}:${HOME}:ro
+      - /mnt:/mnt:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - EXEC_API_TOKEN=${EXEC_API_TOKEN}

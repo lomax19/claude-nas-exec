@@ -1,6 +1,7 @@
 FROM python:3.12-slim
 WORKDIR /app
 
+# Docker CLI pour piloter les autres conteneurs depuis l'API
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl ca-certificates \
     && install -m 0755 -d /etc/apt/keyrings \
@@ -11,6 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get install -y docker-ce-cli \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install flask
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 COPY app.py .
 CMD ["python", "app.py"]

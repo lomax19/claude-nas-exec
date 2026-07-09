@@ -1,19 +1,18 @@
 # ─────────────────────────────────────────────────────────────
-# Bloc à ajouter dans votre docker-compose.yml existant
+# Bloc à insérer dans un docker-compose.yml existant qui a déjà
+# un reverse proxy conteneurisé (Nginx, Caddy, Traefik...).
+# Pour un déploiement autonome, utilise docker-compose.yml.
 # ─────────────────────────────────────────────────────────────
-#
-# Remplacez :
-#   - MON_RESEAU_INTERNE  → réseau du conteneur Nginx (ex: cantal_default)
-#   - MON_RESEAU_DEFAULT  → réseau principal du compose  (ex: loulou_default)
-#   - /home/user          → votre répertoire home
+# Remplace :
+#   - MON_RESEAU_INTERNE  → réseau du conteneur reverse proxy (ex: cantal_default)
+#   - MON_RESEAU_DEFAULT  → réseau principal du compose        (ex: loulou_default)
+#   - /home/user          → ton répertoire home
 #
 services:
   exec-api:
-    build: ./docker/exec-api
+    build: .
     container_name: exec-api
     restart: unless-stopped
-    ports:
-      - "5555:5555"
     networks:
       - MON_RESEAU_DEFAULT
       - MON_RESEAU_INTERNE
@@ -24,10 +23,6 @@ services:
     environment:
       - EXEC_API_TOKEN=${EXEC_API_TOKEN}
 
-# ─────────────────────────────────────────────────────────────
-# À ajouter en bas du fichier si ces réseaux ne sont pas
-# encore déclarés dans votre compose
-# ─────────────────────────────────────────────────────────────
 networks:
   MON_RESEAU_DEFAULT:
     external: true
