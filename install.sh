@@ -25,7 +25,15 @@ curl -s http://127.0.0.1:5555/health && echo
 cat <<MSG
 
 >> exec-api tourne (redémarre automatiquement au boot).
->> Expose-le en HTTPS de façon permanente :
-   - Sans reverse proxy : tunnel/cloudflared-permanent.md   (recommandé)
-   - Avec Nginx déjà en place : nginx/exec.location.conf
+
+   /!\ ÉTAPE OBLIGATOIRE : pour l'instant l'API n'écoute QU'EN LOCAL
+   (127.0.0.1) — Claude ne peut PAS encore l'atteindre. Tu dois l'exposer
+   en HTTPS pour que ce soit utilisable :
+     - Sans reverse proxy : tunnel/cloudflared-permanent.md   (recommandé)
+     - Avec Nginx déjà en place : nginx/exec.location.conf
+
+   Tant que cette étape n'est pas faite, teste seulement en local :
+     curl -s -X POST http://127.0.0.1:5555/exec \
+       -H "X-Token: <ton_token>" -H "Content-Type: application/json" \
+       -d '{"cmd":"whoami"}'
 MSG
