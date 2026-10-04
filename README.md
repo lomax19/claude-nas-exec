@@ -12,7 +12,7 @@ Pour un simple PC (Windows/mac/Linux, exposition à la demande), vois plutôt
 Claude (claude.ai) → HTTPS → tunnel ou reverse proxy → exec-api (Flask) → shell NAS
 ```
 
-Le token en en-tête `X-Token` est la clé d'accès. Volumes montés en lecture seule.
+Le token en en-tête `X-Token` est la clé d'accès.
 
 ---
 
@@ -97,6 +97,8 @@ Docker CLI est disponible. Utilise ton outil bash pour exécuter les commandes t
 | `EXEC_API_TIMEOUT` | `30` | timeout par commande (s) |
 | `EXEC_API_MAXOUT` | `100000` | troncature des sorties (caractères) |
 | `EXEC_API_CWD` | `~` | répertoire de travail |
+| `EXEC_API_TRUSTED_PROXIES` | `1` | proxies de confiance devant l'API (vraie IP dans les logs / fail2ban) ; `0` si exposée sans proxy |
+| `EXEC_API_MAXBODY` | `1048576` | taille max du corps de requête (octets) |
 
 ---
 
@@ -105,10 +107,18 @@ Docker CLI est disponible. Utilise ton outil bash pour exécuter les commandes t
 Cet endpoint **exécute des commandes shell arbitraires** avec accès au socket
 Docker. Exposé en permanence, **le token est l'unique barrière**.
 
+**Accès au socket Docker = root sur l'hôte.** Le `:ro` sur `docker.sock`
+n'empêche PAS d'appeler l'API Docker : avec le token, on peut lancer
+`docker run --privileged -v /:/host ...` et prendre la main sur la machine.
+Le `:ro` des autres volumes ne protège donc les fichiers que contre une écriture
+directe, pas contre un attaquant qui a le token.
+
 - Token fort obligatoire : `openssl rand -hex 32` (l'installeur le fait).
 - HTTPS uniquement, jamais en HTTP clair.
 - Ne commite jamais `.env` (déjà dans `.gitignore`).
-- Volumes en lecture seule (`:ro`) — déjà configuré.
+- Volumes en lecture seule (`:ro`) — limite les erreurs, pas un attaquant (cf. ci-dessus).
+- Fais tourner le token régulièrement, et immédiatement s'il a pu fuiter
+  (collé dans un chat, une capture, un dépôt...).
 - Le service journalise chaque commande : `docker logs exec-api`.
 - 2e couche conseillée : Cloudflare Access, ou restriction IP côté reverse proxy.
 - Coupe le service quand tu ne t'en sers pas de façon prolongée :

@@ -15,4 +15,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY app.py .
-CMD ["python", "app.py"]
+# gunicorn (gthread) : plusieurs commandes en parallèle ; son timeout worker
+# doit dépasser EXEC_API_TIMEOUT sinon il tue la requête avant le 504 propre.
+CMD ["sh", "-c", "exec gunicorn --bind ${EXEC_API_HOST:-0.0.0.0}:${EXEC_API_PORT:-5555} --worker-class gthread --workers 1 --threads 8 --timeout $(( ${EXEC_API_TIMEOUT:-30} + 15 )) --access-logfile - app:app"]
