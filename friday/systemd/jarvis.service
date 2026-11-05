@@ -1,0 +1,18 @@
+[Unit]
+Description=Jarvis - interface vocale de Freeplex NAS (halo, conversation)
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+User=loulou
+Group=admin
+WorkingDirectory=/home/USER/jarvis
+Environment=HOME=/home/USER
+Environment=LANG=C.UTF-8
+Environment=PATH=/home/USER/.local/bin:/home/USER/.nvm/versions/node/v22.23.4/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/python3 -u -I /home/USER/jarvis/server.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

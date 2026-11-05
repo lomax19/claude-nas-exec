@@ -1,0 +1,29 @@
+# Serveur MCP "nas-vocal" : shell NAS pour Claude (connecteur perso, mode vocal) - 21/10/2026
+# Expose via nginx cantal-web sur un chemin secret ; coupure : input_boolean.acces_nas_vocal (HA)
+name: nas-vocal
+services:
+  nas-vocal-mcp:
+    image: public.ecr.aws/docker/library/python:3.12-alpine
+    container_name: nas-vocal-mcp
+    restart: unless-stopped
+    user: "1000:10"
+    command: ["python", "-u", "/app/server.py"]
+    env_file: /home/USER/.nas-vocal.env
+    environment:
+      TZ: Europe/Paris
+    ports:
+      - "192.168.1.X:8768:8768"
+    volumes:
+      - /home/USER/docker/nas-vocal-mcp/server.py:/app/server.py:ro
+      - /home/USER/docker/nas-vocal-mcp/data:/data
+      - /home/USER/docker/exec-api/tokens.txt:/secrets/exec_tokens.txt:ro
+      - /home/USER/.ha_token:/secrets/ha_token:ro
+    networks: [cantal_default]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8768/healthz', timeout=3)"]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+networks:
+  cantal_default:
+    external: true

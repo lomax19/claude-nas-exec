@@ -1,0 +1,96 @@
+[
+ {
+  "name": "Jarvis",
+  "desc": "Voix créée pour toi : majordome posé et chaleureux",
+  "voice_id": "XE4jXLYKY0sXlq8GcWFd"
+ },
+ {
+  "name": "Nicolas",
+  "desc": "Homme, voix posée de narrateur, accent parisien",
+  "voice_id": "aQROLel5sQbj1vuIVi6B"
+ },
+ {
+  "name": "François",
+  "desc": "Homme, grave, chaleureux et posé",
+  "voice_id": "UBXZKOKbt62aLQHhc1Jm"
+ },
+ {
+  "name": "Adrien",
+  "desc": "Homme, grave et rassurant",
+  "voice_id": "TTtB1x9U8PF0Vgf20IAP"
+ },
+ {
+  "name": "Léo",
+  "desc": "Homme, dynamique, accent parisien",
+  "voice_id": "AfbuxQ9DVtS4azaxN1W7"
+ },
+ {
+  "name": "Lucie",
+  "desc": "Femme, ton de conversation",
+  "voice_id": "YxrwjAKoUKULGd0g8K9Y"
+ },
+ {
+  "name": "Jeanne",
+  "desc": "Femme, calme, accent parisien",
+  "voice_id": "txtf1EDouKke753vN8SL"
+ },
+ {
+  "name": "Aurore",
+  "desc": "Femme, accent parisien, voix de narratrice",
+  "voice_id": "ucMmKRQbfDEYyb2IIGax",
+  "preview": "https://storage.googleapis.com/eleven-public-prod/database/workspace/a55037a645dc4c8094cce4abc34f6064/voices/ucMmKRQbfDEYyb2IIGax/tF6FemMXJQtyuzlE2yIy.mp3"
+ },
+ {
+  "name": "Audrey",
+  "desc": "Femme, énergique, ton publicité",
+  "voice_id": "McVZB9hVxVSk3Equu8EH",
+  "preview": "https://storage.googleapis.com/eleven-public-prod/custom/voices/McVZB9hVxVSk3Equu8EH/fQOpiFrrNtzg6dglRCvf.mp3"
+ },
+ {
+  "name": "Émilie",
+  "desc": "Femme, animatrice de podcast",
+  "voice_id": "d3AXX0BlgJHYFCuH9X88",
+  "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/XWUS084DdeXQH5HQIxpyonyO8gF2/voices/d3AXX0BlgJHYFCuH9X88/Cuff4TBPpqYBU6Mii94O.mp3"
+ },
+ {
+  "name": "Marie-Alice",
+  "desc": "Femme, douce et calme",
+  "voice_id": "tMyQcCxfGDdIt7wJ2RQw",
+  "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/fYj6ebhDvThfWPhXYIOwgxcx1jp1/voices/tMyQcCxfGDdIt7wJ2RQw/PluNpD6KB6zV7ObpYctZ.mp3"
+ },
+ {
+  "name": "Guillaume",
+  "desc": "Homme, narrateur",
+  "voice_id": "Qrl71rx6Yg8RvyPYRGCQ",
+  "preview": "https://storage.googleapis.com/eleven-public-prod/custom/voices/Qrl71rx6Yg8RvyPYRGCQ/buzH27F7AdN9DzU1N55C.mp3"
+ },
+ {
+  "name": "Marcel",
+  "desc": "Homme, chaleureux, ton de conversation",
+  "voice_id": "kENkNtk0xyzG09WW40xE",
+  "preview": "https://api.us.elevenlabs.io/v1/voices/kENkNtk0xyzG09WW40xE/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ1c2VyX2lkIjoiM1dhTDNabEpjcFlpN1BHM3h4ckxQTFk1ZnVoMSIsImZpbGVuYW1lIjoiWkN0dEZsZjVhVUFKeVdQdzc5NHIubXAzIiwidGltZXN0YW1wIjoxNzkyNTg3NjAwMDAwMDAwfQ%3D%3D"
+ },
+ {
+  "name": "Martin",
+  "desc": "Homme, grave, voix mûre",
+  "voice_id": "a5n9pJUnAhX4fn7lx3uo",
+  "preview": "https://storage.googleapis.com/eleven-public-prod/custom/voices/a5n9pJUnAhX4fn7lx3uo/I5TRksrWlXu6l80nTPu2.mp3"
+ },
+ {
+  "name": "Paul",
+  "desc": "Homme, grave, narrateur",
+  "voice_id": "5l4ttmr4SKNgi0HnOelT",
+  "preview": "https://api.us.elevenlabs.io/v1/voices/5l4ttmr4SKNgi0HnOelT/previews/audio?payload=eyJ2b2ljZV9zb3VyY2UiOiJjdXN0b20iLCJ1c2VyX2lkIjoicFZYMW1Yam8xdmUxVFNMSkJTZFEwWTZFNlJmMiIsImZpbGVuYW1lIjoiZEFxWGt0Z1dlVUFJelQ1S09KY2QubXAzIiwidGltZXN0YW1wIjoxNzkyNTg3NjAwMDAwMDAwfQ%3D%3D"
+ },
+ {
+  "name": "Clément",
+  "desc": "Homme, grave, chuchoté",
+  "voice_id": "cEw6Vx4RDAldKYxwALFW",
+  "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/0U3nhzLV4YbWkl2H0QAWDSVj3ws1/voices/cEw6Vx4RDAldKYxwALFW/zXozDiClDToG0JuFxwrj.mp3"
+ },
+ {
+  "name": "George",
+  "desc": "Homme, style majordome (voix anglaise qui parle français)",
+  "voice_id": "JBFqnCBsd6RMkjVDRZzb"
+ }
+]

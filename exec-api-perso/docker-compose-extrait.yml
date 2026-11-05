@@ -1,0 +1,30 @@
+# Extrait de docker-compose-perso.yml (service exec-api), recopié automatiquement.
+services:
+  exec-api:
+    build: ./docker/exec-api
+    container_name: exec-api
+    init: true
+    environment:
+      - EXEC_API_TOKEN=${EXEC_API_TOKEN}
+      - TZ=Europe/Paris
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5555:5555"
+    networks:
+      - loulou_default
+      - cantal_default
+      - gluetun_net
+    volumes:
+      - /home/USER:/home/USER:rw
+      - /mnt:/mnt:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /run/udev:/run/udev:ro
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/group:/etc/group:ro
+      - /home/USER/docker/exec-api/app.py:/app/app.py:ro
+      - /home/USER/docker/exec-api/tokens.txt:/app/tokens.txt:ro
+

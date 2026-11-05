@@ -149,3 +149,18 @@ claude-nas-exec/
 ## Licence
 
 MIT — voir [LICENSE](LICENSE). Réutilise, modifie et partage librement.
+
+---
+
+## Au-dela de l'exec-api : Friday et le connecteur vocal
+
+Ce depot contient aussi la suite du projet, en version **nettoyee** (noms, adresses, IP, domaine et notes personnelles retires ou remplaces par des valeurs generiques) :
+
+| Dossier | Role |
+|---|---|
+| `friday/` | Friday : interface vocale (halo bleu, voix, chat) pour parler au NAS et piloter la maison. `server.py`, `index.html`, `consignes.txt`, `outils/`, service systemd |
+| `nas-vocal-mcp/` | Connecteur vocal MCP expose a Claude |
+| `exec-api-perso/` | Extrait du service exec-api tel qu'il tourne en vrai (variables secretes masquees) |
+| `docs/` | Histoire du projet, de l'exec-api a Friday, et couts |
+
+Les valeurs entre `ton-...`, `USER`, `X`, `x.y.z` sont a adapter a ton installation. Aucun jeton ni mot de passe n'est publie : ils vivent dans des fichiers `.env` / `tokens.txt` ignores par git.

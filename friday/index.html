@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#02060c">
+<title>Friday</title>
+<link rel="icon" href="/img/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/img/icon-192.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#02060c; --ink:#d6ecff; --dim:#7592ad; --cyan:#46c3ff; --line:rgba(70,195,255,.20);
+  --glass:rgba(10,26,44,.66); --me:rgba(40,140,220,.20); --warn:#ffb347; --err:#ff7676;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif}
+body{display:flex;flex-direction:column;height:100dvh;overflow:hidden;
+  background:radial-gradient(1200px 700px at 50% 12%, rgba(30,110,190,.16), transparent 60%), var(--bg)}
+button{font:500 12px Rajdhani,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);
+  background:rgba(70,195,255,.08);border:1px solid var(--line);border-radius:8px;padding:7px 11px;cursor:pointer;white-space:nowrap}
+button:hover{background:rgba(70,195,255,.16)}
+button:disabled{opacity:.4;cursor:default}
+.top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px 4px;gap:10px;flex:none}
+.brand{font:600 14px Rajdhani,sans-serif;letter-spacing:.38em;color:var(--cyan);display:flex;align-items:center;gap:10px}
+.dot{width:8px;height:8px;border-radius:50%;background:#2ecc71;box-shadow:0 0 10px #2ecc71;flex:none}
+.dot.off{background:#e74c3c;box-shadow:0 0 10px #e74c3c}
+.btns{display:flex;gap:8px}
+.stage{position:relative;flex:none;height:clamp(190px,32vh,360px)}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%}
+.label{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;width:min(250px,54vw);pointer-events:none}
+.status{font:500 clamp(16px,2.2vw,24px) Rajdhani,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:#eef8ff;
+  text-shadow:0 0 16px rgba(70,195,255,.7)}
+.detail{margin-top:6px;font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat{flex:1;overflow-y:auto;padding:6px 14px 10px;scroll-behavior:smooth}
+.col{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:88%;padding:10px 14px;border-radius:14px;line-height:1.5;font-size:15px;word-wrap:break-word}
+.msg.user{align-self:flex-end;background:var(--me);border:1px solid rgba(70,195,255,.28);border-bottom-right-radius:4px}
+.msg.assistant{align-self:flex-start;background:var(--glass);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.system{align-self:center;background:none;color:var(--dim);font-size:12.5px;padding:2px 8px;text-align:center}
+.msg .meta{font:500 10.5px Rajdhani,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
+.msg code{background:rgba(70,195,255,.12);padding:1px 5px;border-radius:4px;font-size:13px}
+.msg pre{background:rgba(0,0,0,.35);padding:10px;border-radius:8px;overflow:auto;font-size:12.5px;white-space:pre-wrap}
+.msg ul{margin:4px 0;padding-left:20px}
+.empty{color:var(--dim);text-align:center;font-size:14px;margin-top:14px;line-height:1.6}
+.bar{flex:none;padding:8px 12px calc(10px + env(safe-area-inset-bottom));border-top:1px solid rgba(70,195,255,.10);
+  background:rgba(2,6,12,.85);backdrop-filter:blur(8px)}
+.bar .col{flex-direction:row;align-items:flex-end;gap:8px}
+textarea{flex:1;resize:none;max-height:140px;min-height:44px;padding:11px 14px;border-radius:14px;border:1px solid var(--line);
+  background:rgba(10,26,44,.7);color:var(--ink);font:15px/1.4 Inter,system-ui,sans-serif;outline:none}
+textarea:focus{border-color:rgba(70,195,255,.55)}
+.round{width:44px;height:44px;padding:0;border-radius:50%;display:grid;place-items:center;flex:none}
+.round svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#mic.rec{background:rgba(255,90,90,.25);border-color:rgba(255,120,120,.6);color:#fff}
+#send.stop{background:rgba(255,120,120,.15);border-color:rgba(255,120,120,.5)}
+#att{position:relative}
+#att[data-n]::after{content:attr(data-n);position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:9px;
+  background:var(--cyan);color:#02060c;font:600 11px/18px Inter,sans-serif;letter-spacing:0;text-align:center;padding:0 4px}
+#att.up{animation:attpulse 1s ease-in-out infinite}
+@keyframes attpulse{50%{background:rgba(70,195,255,.35)}}
+body.drag::before{content:'Lâche le fichier ici';position:fixed;inset:12px;border:2px dashed var(--cyan);border-radius:18px;z-index:20;
+  display:grid;place-items:center;font:600 18px Rajdhani,sans-serif;letter-spacing:.2em;color:var(--cyan);background:rgba(2,6,12,.75)}
+.toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:rgba(10,26,44,.95);border:1px solid var(--line);
+  padding:9px 14px;border-radius:10px;font-size:13px;max-width:90vw;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9}
+.toast.on{opacity:1}
+.panel{position:fixed;inset:0;background:rgba(2,6,12,.88);display:none;align-items:flex-end;justify-content:center;z-index:8}
+.panel.on{display:flex}
+.sheet{width:min(560px,100%);max-height:86dvh;overflow:auto;background:#06111e;border:1px solid var(--line);border-radius:18px 18px 0 0;
+  padding:16px 16px calc(18px + env(safe-area-inset-bottom))}
+.sheet h3{font:600 15px Rajdhani,sans-serif;letter-spacing:.3em;color:var(--cyan);margin:4px 0 12px;display:flex;justify-content:space-between;align-items:center}
+.row{display:flex;align-items:center;gap:10px;padding:11px 4px;border-top:1px solid rgba(70,195,255,.10)}
+.row .txt{flex:1;min-width:0}.row .nm{font-weight:500}.row .ds{font-size:12.5px;color:var(--dim)}
+.row.cur .nm{color:var(--cyan)}
+.quota{font-size:12.5px;color:var(--dim);margin:6px 4px 10px;line-height:1.5}
+.lock{position:fixed;inset:0;background:rgba(2,6,12,.94);display:none;align-items:center;justify-content:center;z-index:10;padding:20px}
+.lock.on{display:flex}
+.lock form{width:min(380px,100%);text-align:center}
+.lock h2{font:600 16px Rajdhani,sans-serif;letter-spacing:.3em;color:var(--cyan);margin:0 0 14px}
+.lock input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:rgba(10,26,44,.8);color:var(--ink);font-size:15px;margin-bottom:10px}
+.hint{font-size:12px;color:var(--dim);margin-top:8px}
+@media (max-width:600px){ .brand{font-size:12px;letter-spacing:.28em} button{font-size:11px;padding:6px 8px} .msg{font-size:14.5px;max-width:92%} #fs{display:none} }
+/* mode halo seul : ni conversation ni texte, juste le halo */
+#kbd{display:none}
+body.halo .chat,body.halo .label{display:none}
+body.halo .stage{flex:1;height:auto}
+body.halo .bar{border-top:none;background:none;backdrop-filter:none}
+body.halo .bar .col{justify-content:center;align-items:center;gap:22px}
+body.halo #kbd{display:grid}
+body.halo:not(.typing) #input{display:none}
+body.halo:not(.typing):not(.hasatt) #send:not(.stop){display:none}
+body.halo:not(.typing) #mic{width:76px;height:76px}
+body.halo:not(.typing) #mic svg{width:30px;height:30px}
+body.halo.typing #kbd{display:none}
+::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="brand"><span class="dot off" id="dot"></span>FRIDAY</div>
+  <div class="btns">
+    <button id="snd">Voix : oui</button>
+    <button id="mode">Texte</button>
+    <button id="new">Nouvelle</button>
+    <button id="fs">Plein écran</button>
+  </div>
+</div>
+<div class="stage" id="stage">
+  <canvas id="halo"></canvas>
+  <div class="label"><div class="status" id="status">Connexion…</div><div class="detail" id="detail"></div></div>
+</div>
+<div class="chat" id="chat"><div class="col" id="list"></div></div>
+<div class="bar">
+  <div class="col">
+    <button class="round" id="kbd" title="Écrire"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10"/></svg></button>
+    <textarea id="input" rows="1" placeholder="Écris ou dicte à Friday…" enterkeyhint="send"></textarea>
+    <button class="round" id="att" title="Joindre un fichier"><svg viewBox="0 0 24 24"><path d="M21 11.5l-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l8.6-8.6a3.7 3.7 0 0 1 5.2 5.2l-8.6 8.6a1.8 1.8 0 0 1-2.6-2.6l7.9-7.9"/></svg></button>
+    <input type="file" id="file" multiple hidden>
+    <button class="round" id="mic" title="Parler"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+    <button class="round" id="send" title="Envoyer"><svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg></button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="panel" id="panel"><div class="sheet">
+  <h3>VOIX <button id="pclose">Fermer</button></h3>
+  <div class="row"><div class="txt"><div class="nm">Réponses à voix haute</div><div class="ds">Sur cet appareil</div></div><button id="ptoggle">Oui</button></div>
+  <div class="quota" id="quota"></div>
+  <div id="plist"></div>
+</div></div>
+<div class="lock" id="lock"><form id="lockf">
+  <h2>FRIDAY</h2>
+  <input id="keyin" type="password" autocomplete="current-password" placeholder="Clé d'accès">
+  <button type="submit">Entrer</button>
+  <div class="hint">La clé est mémorisée sur cet appareil.</div>
+</form></div>
+
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+function toast(msg, ms = 3500) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('on'), ms); }
+
+// ------------------------------------------------------------- clé d'accès
+let KEY = store.get('jarvis.key', '');
+const m = location.hash.match(/k=([A-Za-z0-9_-]+)/);
+if (m) { KEY = m[1]; store.set('jarvis.key', KEY); history.replaceState(null, '', location.pathname); }
+function askKey() { $('lock').classList.add('on'); setTimeout(() => $('keyin').focus(), 50); }
+$('lockf').onsubmit = e => { e.preventDefault(); KEY = $('keyin').value.trim(); store.set('jarvis.key', KEY); $('lock').classList.remove('on'); start(); };
+async function api(path, opts = {}) {
+  // 03/11/2026 : delai maximum (30 s par defaut, 0 = aucun) : la page ne reste jamais figee si le reseau decroche
+  const ms = opts.timeout === undefined ? 30000 : opts.timeout, ac = new AbortController();
+  const tid = ms ? setTimeout(() => ac.abort(), ms) : 0;
+  try {
+    const r = await fetch(path, { ...opts, signal: ac.signal, headers: { 'X-Jarvis-Key': KEY, ...(opts.headers || {}) } });
+    if (r.status === 401) { askKey(); throw new Error('clé'); }
+    return r;
+  } finally { if (tid) clearTimeout(tid); }
+}
+
+// ------------------------------------------------------------- halo
+const LOOK = {
+  idle:      { energy:.28, speed:.80, bright:.70, spin:.30, hue:203, label:'En veille' },
+  listening: { energy:.34, speed:.9,  bright:1.1, spin:0,   hue:140, label:'Je t\'écoute' },  // 28/10 : vert net quand Friday t'ecoute
+  thinking:  { energy:.42, speed:1.25, bright:.90, spin:.60, hue:200, label:'Je réfléchis' },
+  working:   { energy:.55, speed:1.75, bright:.95, spin:1,   hue:198, label:'Je travaille' },
+  done:      { energy:.26, speed:.6,  bright:1,   spin:0,   hue:196, label:'Réponse prête' },
+  speaking:  { energy:.18, speed:.7,  bright:.9,  spin:0,   hue:196, label:'Je parle' },
+  attention: { energy:.30, speed:.8,  bright:.9,  spin:.3,  hue:32,  label:'Il faut ton avis' },
+  offline:   { energy:.04, speed:.15, bright:.18, spin:0,   hue:210, label:'Connexion perdue' },
+};
+let mode = 'offline';
+const P = { ...LOOK.offline };
+let level = 0, pulse = 0;
+const cv = $('halo'), ctx = cv.getContext('2d');
+let W = 0, H = 0, dpr = 1;
+function resize() {
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const r = $('stage').getBoundingClientRect();
+  W = cv.width = Math.floor(r.width * dpr); H = cv.height = Math.floor(r.height * dpr);
+}
+addEventListener('resize', resize); resize();
+let t = 0, prev = performance.now();
+function frame(now) {
+  const dt = Math.min(.05, (now - prev) / 1000); prev = now;
+  const tgt = LOOK[mode] || LOOK.idle, k = 1 - Math.pow(.02, dt);
+  for (const key of ['energy','speed','bright','spin','hue']) P[key] += (tgt[key] - P[key]) * k;
+  t += dt * P.speed; pulse *= Math.pow(.15, dt);
+  const amp = inputLevel();
+  level += (amp - level) * (amp > level ? .5 : .12);
+  ctx.clearRect(0, 0, W, H);
+  const cx = W / 2, cy = H / 2, R = Math.min(W, H) * .30;
+  const breath = 1 + .12 * Math.sin(now / 1000 * 1.3);
+  const hue = P.hue, br = Math.min(1.2, (P.bright + pulse * .5 + level * .5) * breath);
+  ctx.globalCompositeOperation = 'lighter';
+  let g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 2.2);
+  g.addColorStop(0, `hsla(${hue},100%,60%,${.12 * br + level * .2})`);
+  g.addColorStop(.5, `hsla(${hue},100%,45%,${.05 * br})`);
+  g.addColorStop(1, 'hsla(0,0%,0%,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  for (let r = 0; r < 6; r++) {
+    const ph = r * 1.7; ctx.beginPath();
+    for (let i = 0; i <= 200; i++) {
+      const a = i / 200 * Math.PI * 2;
+      const w1 = Math.sin(3 * a + t * 1.3 + ph) * .5 + Math.sin(5 * a - t * .9 + ph * 2) * .3 + Math.sin(7 * a + t * 2.1 + ph) * .2;
+      const w2 = Math.sin(4 * a + t * 5 + ph) * .6 + Math.sin(9 * a - t * 7 + ph) * .4;
+      const rr = R * (1 + r * .018) + R * P.energy * .14 * w1 + R * level * .22 * w2 + R * pulse * .06;
+      const x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr;
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = `hsla(${hue + r * 3},100%,${62 - r * 4}%,${Math.max(.05, (.55 - r * .06) * br)})`;
+    ctx.lineWidth = (r ? 1.3 : 2.3) * dpr;
+    ctx.shadowColor = `hsla(${hue},100%,60%,${.9 * br})`; ctx.shadowBlur = (r ? 10 : 24) * dpr * br;
+    ctx.stroke();
+  }
+  ctx.shadowBlur = 0;
+  const tickR = R * 1.42, rot = t * .05;
+  ctx.strokeStyle = `hsla(${hue},100%,65%,${.22 * br})`; ctx.lineWidth = dpr; ctx.beginPath();
+  for (let i = 0; i < 100; i++) {
+    const a = i / 100 * Math.PI * 2 + rot, len = (i % 10 ? 3 : 8) * dpr;
+    ctx.moveTo(cx + Math.cos(a) * tickR, cy + Math.sin(a) * tickR);
+    ctx.lineTo(cx + Math.cos(a) * (tickR + len), cy + Math.sin(a) * (tickR + len));
+  }
+  ctx.stroke();
+  if (P.spin > .02) {
+    ctx.lineWidth = 2 * dpr; ctx.shadowColor = `hsla(${hue},100%,60%,.9)`; ctx.shadowBlur = 12 * dpr;
+    for (let j = 0; j < 3; j++) {
+      const a0 = t * 1.4 * (j % 2 ? -1 : 1) + j * 2.1;
+      ctx.strokeStyle = `hsla(${hue},100%,70%,${.55 * P.spin})`;
+      ctx.beginPath(); ctx.arc(cx, cy, R * 1.24 + j * 5 * dpr, a0, a0 + .7 + j * .2); ctx.stroke();
+    }
+    ctx.shadowBlur = 0;
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+function setMode(m2, detail) {
+  if (m2 === 'listening' && mode !== 'listening') pulse = 1.8;  // flash : Friday t'a entendu
+  mode = m2; $('status').textContent = (LOOK[m2] || LOOK.idle).label;
+  if (detail !== undefined) $('detail').textContent = detail || '';
+}
+
+// ------------------------------------------------------------- son
+let soundOn = store.get('jarvis.sound', '1') === '1';
+let actx = null, analyser = null, abuf = null, playing = null, micAnalyser = null;
+let curGen = -1, clips = [], ended = true, idleTimer = null;
+function ensureAudio() {
+  if (!actx) {
+    const AC = window.AudioContext || window.webkitAudioContext; actx = new AC();
+    analyser = actx.createAnalyser(); analyser.fftSize = 1024; analyser.connect(actx.destination);
+    abuf = new Float32Array(analyser.fftSize);
+  }
+  if (actx.state === 'suspended') actx.resume();
+}
+document.addEventListener('pointerdown', () => { if (soundOn) ensureAudio(); }, true);
+function inputLevel() {
+  const a = micAnalyser || (playing ? analyser : null);
+  if (!a) return 0;
+  a.getFloatTimeDomainData(abuf);
+  let s = 0; for (let i = 0; i < abuf.length; i++) s += abuf[i] * abuf[i];
+  return Math.min(1, Math.sqrt(s / abuf.length) * 4.5);
+}
+function setSoundBtn() { $('snd').textContent = 'Voix'; $('ptoggle').textContent = soundOn ? 'Oui' : 'Non'; }
+$('ptoggle').onclick = () => { soundOn = !soundOn; store.set('jarvis.sound', soundOn ? '1' : '0'); setSoundBtn(); if (soundOn) ensureAudio(); else stopAudio(); };
+let preview = null;
+function stopPreview() { if (preview) { preview.pause(); preview = null; } }
+$('pclose').onclick = () => { stopPreview(); $('panel').classList.remove('on'); };
+$('panel').onclick = e => { if (e.target.id === 'panel') $('pclose').onclick(); };
+$('snd').onclick = openVoices;
+async function openVoices() {
+  $('panel').classList.add('on'); $('plist').innerHTML = '<div class="quota">Chargement…</div>'; $('quota').textContent = '';
+  let j;
+  try { j = await (await api('/api/voices')).json(); } catch (e) { $('plist').innerHTML = '<div class="quota">NAS injoignable</div>'; return; }
+  const q = j.quota;
+  if (q && q.limit) {
+    const reste = Math.max(0, q.limit - q.used);
+    let r = ''; if (q.reset) { const d = new Date(q.reset * 1000); r = ' · remis à zéro le ' + d.getDate() + '/' + (d.getMonth() + 1); }
+    $('quota').textContent = 'ElevenLabs : ' + reste.toLocaleString('fr-FR') + ' caractères restants sur ' + q.limit.toLocaleString('fr-FR') + r + '. Quand il n\'en reste plus, Jarvis repasse tout seul sur Piper.';
+  }
+  const cur = j.current || {};
+  const items = [{ voice_id: 'piper', name: 'Piper', desc: 'Voix installée sur le NAS, gratuite et illimitée' }].concat(j.choices || []);
+  $('plist').innerHTML = '';
+  for (const v of items) {
+    const isCur = (v.voice_id === 'piper' && cur.engine !== 'elevenlabs') || (cur.engine === 'elevenlabs' && cur.name === v.name);
+    const row = document.createElement('div'); row.className = 'row' + (isCur ? ' cur' : '');
+    row.innerHTML = '<div class="txt"><div class="nm"></div><div class="ds"></div></div>';
+    row.querySelector('.nm').textContent = v.name + (isCur ? ' ✓' : '');
+    row.querySelector('.ds').textContent = v.desc || '';
+    if (v.voice_id !== 'piper') {
+      const b = document.createElement('button'); b.textContent = 'Écouter';
+      b.onclick = () => {
+        stopPreview(); preview = new Audio('/api/preview/' + v.voice_id + '?k=' + encodeURIComponent(KEY));
+        b.textContent = '…'; preview.onplaying = () => b.textContent = 'Écouter'; preview.onended = () => b.textContent = 'Écouter';
+        preview.play().catch(() => { b.textContent = 'Écouter'; toast('Extrait indisponible'); });
+      };
+      row.appendChild(b);
+    }
+    const c = document.createElement('button'); c.textContent = isCur ? 'Actuelle' : 'Choisir'; c.disabled = isCur;
+    c.onclick = async () => {
+      stopPreview(); if (soundOn) ensureAudio(); c.textContent = '…'; c.disabled = true;
+      try {
+        const r = await api('/api/voice', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ voice_id: v.voice_id }) });
+        const jj = await r.json();
+        if (!r.ok) { toast(jj.error || 'Refusé', 8000); c.textContent = 'Choisir'; c.disabled = false; return; }
+        $('panel').classList.remove('on'); toast('Nouvelle voix : ' + v.name);
+      } catch (e) { toast('NAS injoignable'); c.textContent = 'Choisir'; c.disabled = false; }
+    };
+    row.appendChild(c); $('plist').appendChild(row);
+  }
+}
+setSoundBtn();
+$('fs').onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(()=>{});
+function stopAudio() { clips = []; ended = true; if (playing) { try { playing.stop(); } catch (e) {} playing = null; } }
+async function loadClip(c) {
+  try {
+    const r = await api(c.url + '?k=' + encodeURIComponent(KEY));
+    c.buffer = await actx.decodeAudioData(await r.arrayBuffer());
+  } catch (e) { c.failed = true; }
+  pump();
+}
+function pump() {
+  if (playing) return;
+  if (!clips.length) {
+    if (busy && mode === 'speaking') setMode(serverState === 'working' ? 'working' : 'thinking');  // fin de la phrase d'attente
+    else if (ended && (mode === 'speaking' || mode === 'done')) { idleSoon(1200); finParole(); }
+    return;
+  }
+  const c = clips[0];
+  if (c.failed) { clips.shift(); return pump(); }
+  if (!c.buffer) return;
+  clips.shift();
+  const src = actx.createBufferSource(); src.buffer = c.buffer; src.connect(analyser);
+  playing = src; setMode('speaking');
+  src.onended = () => { if (playing === src) playing = null; pump(); };
+  src.start();
+}
+// 28/10/2026 : quand Friday finit de parler et que sa reponse se termine par une question, elle attend la reponse
+// (telephone : ecoute de la page ; PC : signal "suivi" au NAS, repris par l'ecoute du PC)
+let suiviHook = null, suiviFait = '';
+function finParole() {
+  if (busy) return;
+  const els = $('list').querySelectorAll('.msg.assistant'), last = els[els.length - 1];
+  if (!last) return;
+  const txt = (last.textContent || '').trim().split(/\s*Sources\s*:/)[0].trim();  // la liste de sources ne compte pas
+  if (!/\?\s*$/.test(txt) && !/(si tu (le )?veux|tu veux que|veux-tu|tu préfères|dis-moi)[^.?!]*[.!]?\s*$/i.test(txt)) return;
+  const id = els.length + ':' + txt.slice(-80);
+  if (id === suiviFait) return;
+  suiviFait = id;
+  if (suiviHook) suiviHook();
+  else api('/api/wake', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ state: 'suivi' }) }).catch(() => {});
+}
+function idleSoon(ms) {
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => { if (!playing && !busy && (mode === 'speaking' || mode === 'done')) setMode('idle', ''); }, ms);
+}
+
+// ------------------------------------------------------------- conversation
+let busy = false;
+function esc(s) { return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function md(src) {
+  const blocks = [];
+  let s = esc(src).replace(/```[^\n]*\n?([\s\S]*?)```/g, (_, code) => { blocks.push(code); return `\u0000${blocks.length - 1}\u0000`; });
+  s = s.replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '$1');
+  const out = []; let list = false;
+  for (const line of s.split('\n')) {
+    const mm = line.match(/^\s*(?:[-*•]|\d+[.)])\s+(.*)/);
+    if (mm) { if (!list) { out.push('<ul>'); list = true; } out.push('<li>' + mm[1] + '</li>'); continue; }
+    if (list) { out.push('</ul>'); list = false; }
+    const h = line.match(/^#+\s*(.*)/);
+    out.push(h ? '<b>' + h[1] + '</b><br>' : (line.trim() ? line + '<br>' : '<br>'));
+  }
+  if (list) out.push('</ul>');
+  return out.join('').replace(/(<br>)+$/, '').replace(/\u0000(\d+)\u0000/g, (_, i) => '<pre>' + blocks[+i] + '</pre>');
+}
+function hhmm(ts) { const d = new Date(ts * 1000); return d.getHours() + 'h' + String(d.getMinutes()).padStart(2, '0'); }
+const seen = new Set();
+function addMsg(mg) {
+  if (seen.has(mg.id)) return; seen.add(mg.id);
+  const e = $('list').querySelector('.empty'); if (e) e.remove();
+  const d = document.createElement('div'); d.className = 'msg ' + mg.role;
+  if (mg.role === 'system') d.textContent = mg.text + ' · ' + hhmm(mg.ts);
+  else {
+    const who = mg.role === 'user' ? 'Toi' : 'Friday';
+    const via = mg.source === 'appli' ? ' · via l\'appli' : '';
+    d.innerHTML = '<div class="meta">' + who + ' · ' + hhmm(mg.ts) + via + '</div>' + md(mg.text);
+  }
+  $('list').appendChild(d);
+  const ch = $('chat'); ch.scrollTop = ch.scrollHeight;
+}
+function emptyState() {
+  /* page vierge quand il n'y a rien */
+}
+function setBusy(b) {
+  busy = !!b;
+  const s = $('send'); s.classList.toggle('stop', busy); s.title = busy ? 'Arrêter' : 'Envoyer';
+  s.innerHTML = busy ? '<svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/></svg>'
+                     : '<svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg>';
+  $('new').disabled = busy;
+}
+let serverState = 'idle';
+function applyState(s) {
+  setBusy(s.busy);
+  const prevSrv = serverState; serverState = s.state;
+  const voiceBusy = playing || clips.length || (mode === 'done' && !ended);
+  if (s.state === 'thinking' && !['thinking', 'working'].includes(prevSrv)) { stopAudio(); pulse = 1; }
+  if (s.state === 'done') pulse = 1;
+  if (voiceBusy && (s.state === 'idle' || s.state === 'done')) return;
+  if (mode === 'listening' && s.state === 'idle') return;
+  setMode(s.state, s.detail);
+  if (s.state === 'done' && !soundOn) idleSoon(5000);
+}
+function onAudio(a) {
+  if (a.gen !== curGen) return;
+  if (a.end) { ended = true; if (!a.count) idleSoon(soundOn ? 2500 : 5000); pump(); return; }
+  if (!soundOn || !actx || actx.state !== 'running') return;
+  const c = { url: a.url, seq: a.seq }; clips.push(c); clips.sort((x, y) => x.seq - y.seq); loadClip(c);
+}
+
+// ------------------------------------------------------------- fichiers joints (trombone, glisser-déposer, coller)
+let att = [], uploading = 0;
+function showAtt() {
+  const b = $('att');
+  if (att.length) b.setAttribute('data-n', att.length); else b.removeAttribute('data-n');
+  b.classList.toggle('up', uploading > 0);
+  b.title = att.length ? att.map(a => a.name).join(', ') : 'Joindre un fichier';
+  document.body.classList.toggle('hasatt', att.length > 0);
+}
+async function uploadFiles(list) {
+  for (const f of list) {
+    uploading++; showAtt();
+    try {
+      const r = await api('/api/upload', { method: 'POST', body: f, timeout: 0,
+        headers: { 'Content-Type': 'application/octet-stream', 'X-File-Name': encodeURIComponent(f.name || 'fichier') } });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) toast((f.name || 'Fichier') + ' : ' + (j.error || 'refusé'), 6000);
+      else { att.push({ path: j.path, name: f.name || j.name }); toast('Reçu : ' + (f.name || j.name) + '. Dis ou écris ce que tu veux en faire, ou touche la flèche.', 6000); }
+    } catch (e) { if (e.message !== 'clé') toast('Envoi du fichier impossible (NAS injoignable)', 6000); }
+    uploading--; showAtt();
+  }
+}
+$('att').onclick = () => {
+  if (uploading) { toast('Envoi en cours…'); return; }
+  if (att.length && confirm(att.length + ' fichier(s) en attente : ' + att.map(a => a.name).join(', ') +
+      '\n\nOK = en ajouter d\'autres\nAnnuler = les retirer')) { $('file').click(); return; }
+  if (att.length) { att = []; showAtt(); toast('Fichiers retirés'); return; }
+  $('file').click();
+};
+$('file').onchange = e => { const l = [...e.target.files]; e.target.value = ''; if (l.length) uploadFiles(l); };
+let dragN = 0;
+addEventListener('dragenter', e => { if ([...(e.dataTransfer?.types || [])].includes('Files')) { dragN++; document.body.classList.add('drag'); } });
+addEventListener('dragleave', () => { if (--dragN <= 0) { dragN = 0; document.body.classList.remove('drag'); } });
+addEventListener('dragover', e => e.preventDefault());
+addEventListener('drop', e => { e.preventDefault(); dragN = 0; document.body.classList.remove('drag'); const l = [...(e.dataTransfer?.files || [])]; if (l.length) uploadFiles(l); });
+addEventListener('paste', e => { const l = [...(e.clipboardData?.files || [])]; if (l.length) { e.preventDefault(); uploadFiles(l); } });
+
+// 03/11/2026 : une question dite pendant que Friday travaille remplace l'ancienne (avant : elle l'arretait et se perdait)
+async function libererPuisEnvoyer() {
+  if (busy) {
+    await api('/api/stop', { method: 'POST', timeout: 8000 }).catch(() => {});
+    for (let i = 0; i < 60 && busy; i++) await new Promise(r => setTimeout(r, 200));
+    if (busy) { toast('Friday termine encore, redis ta question'); return; }
+  }
+  send();
+}
+async function send() {
+  if (busy) { await api('/api/stop', { method: 'POST' }).catch(() => {}); return; }
+  if (uploading) { toast('Attends la fin de l\'envoi du fichier'); return; }
+  const ta = $('input'), text = ta.value.trim(); if (!text && !att.length) return;
+  const files = att.map(a => a.path);
+  if (soundOn) ensureAudio();
+  ta.value = ''; grow();
+  try {
+    const r = await api('/api/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, files }) });
+    if (!r.ok) { const j = await r.json().catch(() => ({})); toast(j.error || 'Envoi refusé'); ta.value = text; grow(); }
+    else { att = []; showAtt(); }
+  } catch (e) { if (e.message !== 'clé') { toast('NAS injoignable'); ta.value = text; grow(); } }
+}
+// zone de saisie toujours visible sur cet appareil (PC sans micro) : ?clavier=1 / ?clavier=0
+const qs = new URLSearchParams(location.search);
+if (qs.get('clavier') === '1') store.set('jarvis.kbd', '1');
+if (qs.get('clavier') === '0') store.set('jarvis.kbd', '0');
+const kbdAlways = store.get('jarvis.kbd', '0') === '1';
+function closeTyping() { if (kbdAlways) { $('input').focus(); return; } document.body.classList.remove('typing'); }
+$('send').onclick = () => { send(); closeTyping(); };
+// mode halo seul (par defaut) / mode texte, memorise sur l'appareil
+function setView(halo) {
+  document.body.classList.toggle('halo', halo);
+  document.body.classList.toggle('typing', kbdAlways);
+  $('mode').textContent = halo ? 'Texte' : 'Halo';
+  store.set('jarvis.view', halo ? 'halo' : 'texte');
+  requestAnimationFrame(resize);
+}
+$('mode').onclick = () => setView(!document.body.classList.contains('halo'));
+$('kbd').onclick = () => { document.body.classList.add('typing'); $('input').focus(); };
+$('input').addEventListener('blur', () => setTimeout(() => { if (!kbdAlways && !$('input').value.trim()) document.body.classList.remove('typing'); }, 200));
+setView(store.get('jarvis.view', 'halo') === 'halo');
+if (kbdAlways) setTimeout(() => $('input').focus(), 600);
+const ta = $('input');
+function grow() { ta.style.height = 'auto'; ta.style.height = Math.min(140, ta.scrollHeight) + 'px'; }
+ta.addEventListener('input', grow);
+ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); send(); } });
+$('new').onclick = async () => {
+  if (!confirm('Nouvelle conversation ? La page sera effacée et Friday oubliera ce qui précède.')) return;
+  const r = await api('/api/new', { method: 'POST' }).catch(() => null);
+  if (r && r.status === 409) toast('Friday travaille encore, attends la fin');
+};
+
+// ------------------------------------------------------------- micro (https seulement)
+let rec = null, recStream = null, chunks = [];
+$('mic').onclick = async () => {
+  if (rec) { rec.stop(); return; }
+  if (!window.isSecureContext || !navigator.mediaDevices) {
+    toast('Le micro de la page demande l\'adresse https. En attendant, utilise le micro de ton clavier.', 6000); ta.focus(); return;
+  }
+  if (busy) { toast('Friday travaille encore'); return; }
+  try {
+    ensureAudio();
+    recStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+    const src = actx.createMediaStreamSource(recStream);
+    micAnalyser = actx.createAnalyser(); micAnalyser.fftSize = 1024; src.connect(micAnalyser);
+    chunks = []; rec = new MediaRecorder(recStream);
+    rec.ondataavailable = e => chunks.push(e.data);
+    rec.onstop = onRecorded;
+    rec.start(); $('mic').classList.add('rec'); stopAudio(); setMode('listening', 'Touche le micro pour finir');
+    setTimeout(() => { if (rec && rec.state === 'recording') rec.stop(); }, 60000);
+  } catch (e) { toast('Micro refusé'); rec = null; }
+};
+async function onRecorded() {
+  $('mic').classList.remove('rec');
+  recStream.getTracks().forEach(tr => tr.stop()); micAnalyser = null; rec = null;
+  setMode('thinking', 'Je transcris…');
+  try {
+    const blob = new Blob(chunks);
+    const decoded = await actx.decodeAudioData(await blob.arrayBuffer());
+    const off = new OfflineAudioContext(1, Math.ceil(decoded.duration * 16000), 16000);
+    const s = off.createBufferSource(); s.buffer = decoded; s.connect(off.destination); s.start();
+    const out = (await off.startRendering()).getChannelData(0);
+    const pcm = new Int16Array(out.length);
+    for (let i = 0; i < out.length; i++) pcm[i] = Math.max(-1, Math.min(1, out[i])) * 32767;
+    const r = await api('/api/listen', { method: 'POST', body: pcm.buffer, headers: { 'Content-Type': 'application/octet-stream' } });
+    const j = await r.json();
+    if (!r.ok || !j.text) { toast(j.error || 'Rien compris'); setMode('idle', ''); return; }
+    ta.value = j.text; grow(); await libererPuisEnvoyer();
+  } catch (e) { toast('Transcription impossible'); setMode('idle', ''); }
+}
+
+// ------------------------------------------------------------- flux
+let es = null;
+async function start() {
+  if (!KEY) { askKey(); return; }
+  try {
+    const r = await api('/api/history');
+    const j = await r.json();
+    $('list').innerHTML = ''; seen.clear();
+    (j.history || []).forEach(addMsg); emptyState();
+    setBusy(j.busy);
+  } catch (e) { if (e.message === 'clé') return; }
+  if (es) es.close();
+  es = new EventSource('/events?k=' + encodeURIComponent(KEY));
+  es.onopen = () => { $('dot').classList.remove('off'); if (mode === 'offline') setMode('idle', ''); };
+  es.onerror = () => { $('dot').classList.add('off'); if (es.readyState === 2) { setMode('offline', ''); setTimeout(start, 4000); } };
+  es.onmessage = e => {
+    let d; try { d = JSON.parse(e.data); } catch (err) { return; }
+    if (d.type === 'state') applyState(d);
+    else if (d.type === 'msg') addMsg(d);
+    else if (d.type === 'speak') { curGen = d.gen; clips = []; ended = false; }
+    else if (d.type === 'audio') onAudio(d);
+    else if (d.type === 'reset') { stopAudio(); $('list').innerHTML = ''; seen.clear(); $('input').value = ''; grow(); att = []; showAtt(); setMode('idle', ''); }
+  };
+}
+// ------------------------------------------------------------- « Hey Friday » dans la page (28/10/2026)
+// Telephone : tant que Friday est ouverte, la page guette le mot elle-meme (memes modeles que l'ecoute du PC),
+// ecran maintenu allume. ?ecoute=1 / ?ecoute=0 pour forcer (memorise). Par defaut : actif sur Android seulement.
+(() => {
+  const rapport = msg => { try { api('/api/hflog', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ msg }) }).catch(() => {}); } catch (e) {} };
+  if (qs.has('ecoute')) store.set('jarvis.ecoute', qs.get('ecoute') === '1' ? '1' : '0');
+  rapport('page ouverte, ecoute=' + store.get('jarvis.ecoute', 'defaut') + ' android=' + /Android/i.test(navigator.userAgent) + ' https=' + window.isSecureContext + ' adresse=' + location.host);
+  if (store.get('jarvis.ecoute', /Android/i.test(navigator.userAgent) ? '1' : '0') !== '1') return;
+  if (!window.isSecureContext || !navigator.mediaDevices) { rapport('ARRET : pas https'); toast('« Hey Friday » : il faut ouvrir Friday par l\'adresse https', 6000); return; }
+  const ORT = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/';
+  const SEUIL = 0.5, BLOC = 1280;
+  let mel = null, emb = null, kw = null, ctxA = null, verrou = null, enCours = false, pret = false;
+  let file16 = [], reste = new Float32Array(0), pos = 0;
+  let raw = new Float32Array(0), melB = [], feats = [], nPred = 0, pause = true, attente = 0;
+  let enreg = null, smax = 0; const niveaux = [];
+  const css = document.createElement('style');
+  css.textContent = '#mic.guet{box-shadow:0 0 0 3px rgba(70,195,255,.55)}'; document.head.appendChild(css);
+
+  function remise() { raw = new Float32Array(0); melB = []; for (let i = 0; i < 76; i++) melB.push(new Float32Array(32).fill(1)); feats = []; nPred = 0; }
+  function cat(a, b) { const c = new Float32Array(a.length + b.length); c.set(a); c.set(b, a.length); return c; }
+  function rms(x) { let s = 0; for (let i = 0; i < x.length; i++) s += x[i] * x[i]; return Math.sqrt(s / x.length); }
+  function occupe() { return !!rec || busy || !!playing || clips.length > 0 || document.hidden || mode === 'thinking' || mode === 'working'; }
+
+  async function garderEcran() {
+    try { if ('wakeLock' in navigator && !document.hidden && !verrou) { verrou = await navigator.wakeLock.request('screen'); verrou.addEventListener('release', () => { verrou = null; }); } } catch (e) {}
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { garderEcran(); if (ctxA && ctxA.state === 'suspended') ctxA.resume(); } });
+
+  async function chargerOrt() {
+    if (window.ort) return;
+    await new Promise((ok, ko) => { const s = document.createElement('script'); s.src = ORT + 'ort.min.js'; s.onload = ok; s.onerror = ko; document.head.appendChild(s); });
+    ort.env.wasm.wasmPaths = ORT; ort.env.wasm.numThreads = 1;
+  }
+
+  async function bloc(x) {  // x : Float32Array de 1280 echantillons (echelle int16)
+    raw = cat(raw, x); if (raw.length > 1760) raw = raw.slice(raw.length - 1760);
+    const om = await mel.run({ input: new ort.Tensor('float32', raw, [1, raw.length]) });
+    const md = om[mel.outputNames[0]].data, nf = md.length / 32;
+    for (let f = 0; f < nf; f++) { const v = new Float32Array(32); for (let j = 0; j < 32; j++) v[j] = md[f * 32 + j] / 10 + 2; melB.push(v); }
+    if (melB.length > 970) melB = melB.slice(melB.length - 970);
+    const e = new Float32Array(76 * 32); const d = melB.slice(melB.length - 76);
+    for (let f = 0; f < 76; f++) e.set(d[f], f * 32);
+    const oe = await emb.run({ input_1: new ort.Tensor('float32', e, [1, 76, 32, 1]) });
+    feats.push(Float32Array.from(oe[emb.outputNames[0]].data)); if (feats.length > 16) feats.shift();
+    if (feats.length < 16) return 0;
+    const k = new Float32Array(16 * 96); feats.forEach((v, i) => k.set(v, i * 96));
+    const ok = await kw.run({ [kw.inputNames[0]]: new ort.Tensor('float32', k, [1, 16, 96]) });
+    nPred++; return nPred <= 5 ? 0 : ok[kw.outputNames[0]].data[0];
+  }
+
+  async function finEnreg(parts) {
+    enreg = null;
+    let n = 0; parts.forEach(p => n += p.length);
+    const pcm = new Int16Array(n); let o = 0;
+    parts.forEach(p => { for (let i = 0; i < p.length; i++) pcm[o++] = Math.max(-32768, Math.min(32767, p[i])); });
+    setMode('thinking', 'Je transcris…');
+    try {
+      const r = await api('/api/listen', { method: 'POST', body: pcm.buffer, headers: { 'Content-Type': 'application/octet-stream' } });
+      const j = await r.json();
+      if (!r.ok || !j.text) { toast(j.error || 'Rien compris'); setMode('idle', ''); }
+      else { ta.value = j.text; grow(); await libererPuisEnvoyer(); }
+    } catch (e) { toast('Transcription impossible'); setMode('idle', ''); }
+    attente = performance.now() + 2500; remise();
+  }
+
+  async function boucle() {
+    if (enCours) return; enCours = true;
+    try {
+      while (file16.length) {
+        const x = file16.shift();
+        niveaux.push(rms(x)); if (niveaux.length > 50) niveaux.shift();
+        if (enreg) {
+          enreg.parts.push(x);
+          const r = rms(x), dt = performance.now() - enreg.t0;
+          if (r > enreg.seuil) { enreg.parle = true; enreg.calme = 0; }
+          else if (enreg.parle) enreg.calme++;
+          if ((enreg.parle && enreg.calme >= 11) || dt > 15000) { await finEnreg(enreg.parts); }
+          else if (!enreg.parle && dt > (enreg.max || 3500)) { enreg = null; setMode('idle', ''); toast('Je n\'ai rien entendu'); remise(); attente = performance.now() + 1500; }
+          continue;
+        }
+        if (occupe()) { if (!pause) { pause = true; remise(); } continue; }
+        if (pause) { pause = false; remise(); }
+        const s = await bloc(x); if (s > smax) smax = s;
+        if (s >= SEUIL && performance.now() > attente) {
+          const tri = niveaux.slice().sort((a, b) => a - b), bruit = tri[Math.floor(tri.length / 2)] || 0;
+          enreg = { parts: [], parle: false, calme: 0, t0: performance.now(), seuil: Math.max(bruit * 3, 150) };
+          stopAudio(); setMode('listening', 'Je t\'écoute');  // on garde le son deja recu apres le mot (debut de la question) rapport('MOT ENTENDU, score ' + s.toFixed(2));
+        }
+      }
+    } catch (e) { console.error('Hey Friday', e); rapport('ERREUR calcul : ' + (e.message || e)); }
+    enCours = false;
+  }
+
+  function entree(f, sr) {  // reechantillonne vers 16 kHz, echelle int16
+    const a = cat(reste, f), r = sr / 16000, out = [];
+    while (pos + 1 < a.length) { const i = Math.floor(pos), t = pos - i; out.push((a[i] * (1 - t) + a[i + 1] * t) * 32767); pos += r; }
+    const k = Math.floor(pos); reste = a.slice(k); pos -= k;
+    let o = Float32Array.from(out);
+    if (!enreg && occupe()) { file16 = []; return; }
+    while (o.length) { if (!file16._b) file16._b = new Float32Array(0); file16._b = cat(file16._b, o.slice(0, BLOC)); o = o.slice(BLOC);
+      if (file16._b.length >= BLOC) { file16.push(file16._b.slice(0, BLOC)); file16._b = file16._b.slice(BLOC); } }
+    boucle();
+  }
+
+  async function demarrer() {
+    try {
+      await chargerOrt();
+      [mel, emb, kw] = await Promise.all(['melspectrogram', 'embedding_model', 'hey_friday'].map(n => ort.InferenceSession.create('/oww/' + n + '.onnx')));
+      const flux = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });  // 28/10 : filtres Android coupaient le debut des phrases
+      const AC = window.AudioContext || window.webkitAudioContext; ctxA = new AC();
+      const src = ctxA.createMediaStreamSource(flux), sp = ctxA.createScriptProcessor(4096, 1, 1);
+      const muet = ctxA.createGain(); muet.gain.value = 0;
+      sp.onaudioprocess = ev => entree(ev.inputBuffer.getChannelData(0), ctxA.sampleRate);
+      src.connect(sp); sp.connect(muet); muet.connect(ctxA.destination);
+      if (ctxA.state === 'suspended') { ctxA.resume(); document.addEventListener('pointerdown', () => ctxA.resume(), { once: true, capture: true }); }
+      remise(); pret = true; $('mic').classList.add('guet'); garderEcran();
+      suiviHook = () => { if (enreg || rec) return; const tri = niveaux.slice().sort((a, b) => a - b), bruit = tri[Math.floor(tri.length / 2)] || 0;
+        file16 = []; enreg = { parts: [], parle: false, calme: 0, t0: performance.now(), seuil: Math.max(bruit * 3, 150), max: 6000 };
+        setMode('listening', 'Je t\'écoute'); rapport('SUIVI : Friday attend ta reponse'); };
+      toast('Dis « Hey Friday »', 2500);
+      rapport('ecoute prete, micro ' + (flux.getAudioTracks()[0] || {}).label + ', son ' + ctxA.state + ' ' + ctxA.sampleRate + ' Hz');
+      setInterval(() => { rapport('etat: son ' + ctxA.state + ', niveau ' + Math.round(niveaux.length ? niveaux.reduce((a, b) => a + b) / niveaux.length : -1) + ', score max 30 s ' + smax.toFixed(2) + ', pause ' + pause + ', mode ' + mode + ', cache ' + document.hidden); smax = 0; }, 30000);
+    } catch (e) { console.error('Hey Friday', e); rapport('ERREUR demarrage : ' + (e.message || e)); toast('« Hey Friday » indisponible : ' + (e.message || e), 6000); }
+  }
+  demarrer();
+})();
+
+start();
+})();
+</script>
+<style>
+/* 04/11/2026 : mode montre (?montre=1) - halo + gros bouton micro seulement */
+body.montre .top,body.montre .chat,body.montre #kbd,body.montre #att,body.montre #input,body.montre #file{display:none!important}
+body.montre #send:not(.stop){display:none!important}
+body.montre #mic{position:fixed;left:50%;bottom:7%;transform:translateX(-50%);width:88px;height:88px;z-index:5}
+body.montre #mic svg{width:34px;height:34px}
+body.montre .status{font-size:13px}
+body.montre .detail{font-size:11px}
+body.montre .toast{font-size:12px;max-width:70vw}
+</style>
+<script>
+(function(){try{var q=location.search;if(/montre=1/.test(q))localStorage.setItem('jarvis.montre','1');if(/montre=0/.test(q))localStorage.removeItem('jarvis.montre');if(localStorage.getItem('jarvis.montre')==='1')document.body.classList.add('montre');}catch(e){}})();
+</script>
+</body>
+</html>
